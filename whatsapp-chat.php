@@ -103,7 +103,9 @@ function whatsapp_chat_settings_page() {
     <?php
 }
 
+
 // Comprueba actualizaciones al inicio del panel de administración
+add_action( 'admin_init', 'whatsapp_chat_check_for_updates' );
 function whatsapp_chat_check_for_updates() {
     $current_version = get_option( 'whatsapp_chat_version' );
     $latest_version = whatsapp_chat_get_latest_version_from_github();
@@ -113,17 +115,34 @@ function whatsapp_chat_check_for_updates() {
     }
 
     if ( version_compare( $latest_version, $current_version, '>' ) ) {
-        add_action( 'admin_notices', 'whatsapp_chat_display_update_notification' );
+        set_transient( 'whatsapp_chat_update_available', true, DAY_IN_SECONDS ); // Establece el aviso de actualización por 1 día
     }
 }
-add_action( 'admin_init', 'whatsapp_chat_check_for_updates' );
+
+// Muestra un aviso de actualización en la página de ajustes del plugin
+add_action( 'admin_notices', 'whatsapp_chat_settings_update_notice' );
+function whatsapp_chat_settings_update_notice() {
+    if ( get_transient( 'whatsapp_chat_update_available' ) && current_user_can( 'manage_options' ) ) {
+        ?>
+        <div class="notice notice-info">
+            <p>¡Una nueva versión del plugin WhatsApp Chat está disponible! Por favor, <a href="<?php echo admin_url( 'update.php?action=upgrade-plugin&plugin=whatsapp-chat/whatsapp-chat.php' ); ?>">actualiza ahora</a> para disfrutar de las últimas características y mejoras.</p>
+        </div>
+        <?php
+    }
+}
 
 // Obtiene la última versión del plugin desde GitHub
 function whatsapp_chat_get_latest_version_from_github() {
-    $url = 'https://github.com/REstolDev/whatsapp-chat-plugin/tags';
+    $url = 'https://api.github.com/repos/REstolDev/whatsapp-chat-plugin/tags';
+
+    // Agregar mensaje de depuración
+    error_log( 'WhatsApp Chat: Realizando solicitud a la API de GitHub...' );
+
     $response = wp_remote_get( $url );
 
     if ( is_wp_error( $response ) ) {
+        // Agregar mensaje de depuración
+        error_log( 'WhatsApp Chat: Error en la solicitud a la API de GitHub: ' . $response->get_error_message() );
         return false;
     }
 
@@ -131,20 +150,16 @@ function whatsapp_chat_get_latest_version_from_github() {
     $data = json_decode( $body, true );
 
     if ( ! empty( $data[0]['name'] ) ) {
+        // Agregar mensaje de depuración
+        error_log( 'WhatsApp Chat: Última versión obtenida desde GitHub: ' . $data[0]['name'] );
         return $data[0]['name'];
     }
 
+    // Agregar mensaje de depuración
+    error_log( 'WhatsApp Chat: No se pudo obtener la última versión desde GitHub.' );
     return false;
 }
 
-// Muestra un aviso de actualización
-function whatsapp_chat_display_update_notification() {
-    ?>
-    <div class="notice notice-info">
-        <p>¡Una nueva versión del plugin WhatsApp Chat está disponible! Por favor, actualiza ahora para disfrutar de las últimas características y mejoras.</p>
-    </div>
-    <?php
-}
 
 // Almacena la versión actual del plugin
 function whatsapp_chat_activate_plugin() {
