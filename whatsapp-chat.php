@@ -114,15 +114,11 @@ function whatsapp_chat_settings_page()
     <?php
 }
 
-
 // Comprueba actualizaciones al inicio del panel de administración
 add_action('admin_init', 'whatsapp_chat_check_for_updates');
 function whatsapp_chat_check_for_updates() {
     $current_version = get_option('whatsapp_chat_version');
     $latest_version = whatsapp_chat_get_latest_version_from_github();
-
-    error_log('WhatsApp Chat: Versión actual del plugin: ' . $current_version);
-    error_log('WhatsApp Chat: Última versión del plugin desde GitHub: ' . $latest_version);
 
     if (!$latest_version) {
         return;
@@ -130,10 +126,10 @@ function whatsapp_chat_check_for_updates() {
 
     if (version_compare($latest_version, $current_version, '>')) {
         set_transient('whatsapp_chat_update_available', true, DAY_IN_SECONDS); // Establece el aviso de actualización por 1 día
-        error_log('WhatsApp Chat: Se ha detectado una nueva versión del plugin.');
+        set_transient('whatsapp_chat_latest_version', $latest_version, DAY_IN_SECONDS); // Guarda la última versión por 1 día
     } else {
         delete_transient('whatsapp_chat_update_available'); // Elimina el aviso si ya está actualizado
-        error_log('WhatsApp Chat: El plugin está actualizado.');
+        delete_transient('whatsapp_chat_latest_version'); // Elimina la última versión si ya está actualizado
     }
 }
 
@@ -141,12 +137,15 @@ function whatsapp_chat_check_for_updates() {
 add_action('admin_notices', 'whatsapp_chat_settings_update_notice');
 function whatsapp_chat_settings_update_notice() {
     if (get_transient('whatsapp_chat_update_available')) {
+        $current_version = get_option('whatsapp_chat_version');
+        $latest_version = get_transient('whatsapp_chat_latest_version');
         ?>
         <div class="notice notice-info">
-            <p>¡Una nueva versión del plugin WhatsApp Chat está disponible! Por favor, <a href="https://github.com/REstolDev/whatsapp-chat-plugin/archive/main.zip">descarga el plugin aquí</a> y sigue estos pasos para actualizar:</p>
+            <p>¡Una nueva versión del plugin WhatsApp Chat está disponible! (Versión actual: <?php echo esc_html($current_version); ?>, Nueva versión: <?php echo esc_html($latest_version); ?>) Por favor, <a href="https://github.com/REstolDev/whatsapp-chat-plugin/archive/main.zip">descarga el plugin aquí</a> y sigue estos pasos para actualizar:</p>
             <ol>
                 <li>Descarga el archivo ZIP del plugin desde el enlace anterior.</li>
                 <li>Sube el nuevo archivo ZIP descargado e instálalo como un nuevo plugin.</li>
+                <li>Desactiva y elimina la versión antigua del plugin.</li>
             </ol>
         </div>
         <?php
@@ -157,14 +156,9 @@ function whatsapp_chat_settings_update_notice() {
 function whatsapp_chat_get_latest_version_from_github() {
     $url = 'https://api.github.com/repos/REstolDev/whatsapp-chat-plugin/tags';
 
-    // Agregar mensaje de depuración
-    error_log('WhatsApp Chat: Realizando solicitud a la API de GitHub...');
-
     $response = wp_remote_get($url);
 
     if (is_wp_error($response)) {
-        // Agregar mensaje de depuración
-        error_log('WhatsApp Chat: Error en la solicitud a la API de GitHub: ' . $response->get_error_message());
         return false;
     }
 
@@ -172,13 +166,9 @@ function whatsapp_chat_get_latest_version_from_github() {
     $data = json_decode($body, true);
 
     if (!empty($data[0]['name'])) {
-        // Agregar mensaje de depuración
-        error_log('WhatsApp Chat: Última versión obtenida desde GitHub: ' . $data[0]['name']);
         return $data[0]['name'];
     }
 
-    // Agregar mensaje de depuración
-    error_log('WhatsApp Chat: No se pudo obtener la última versión desde GitHub.');
     return false;
 }
 
@@ -187,12 +177,8 @@ function whatsapp_chat_activate_plugin() {
     $current_version = get_option('whatsapp_chat_version');
     $latest_version = whatsapp_chat_get_latest_version_from_github();
 
-    error_log('WhatsApp Chat: Activando el plugin. Versión actual: ' . $current_version);
-    error_log('WhatsApp Chat: Última versión desde GitHub: ' . $latest_version);
-
     if (!$current_version || version_compare($latest_version, $current_version, '>')) {
         update_option('whatsapp_chat_version', $latest_version);
-        error_log('WhatsApp Chat: Versión del plugin actualizada a: ' . $latest_version);
     }
 }
 register_activation_hook(__FILE__, 'whatsapp_chat_activate_plugin');
@@ -200,12 +186,12 @@ register_activation_hook(__FILE__, 'whatsapp_chat_activate_plugin');
 // Actualiza la versión del plugin después de actualizar
 add_action('upgrader_process_complete', 'whatsapp_chat_after_update', 10, 2);
 function whatsapp_chat_after_update($upgrader_object, $options) {
-    if ($options['action'] == 'update' && $options['type'] == 'plugin' ) {
+    if ($options['action'] == 'update' && $options['type'] == 'plugin') {
         if (isset($options['plugins']) && in_array(plugin_basename(__FILE__), $options['plugins'])) {
             $latest_version = whatsapp_chat_get_latest_version_from_github();
             update_option('whatsapp_chat_version', $latest_version);
             delete_transient('whatsapp_chat_update_available');
-            error_log('WhatsApp Chat: Plugin actualizado a la versión: ' . $latest_version);
+            delete_transient('whatsapp_chat_latest_version');
         }
     }
 }
