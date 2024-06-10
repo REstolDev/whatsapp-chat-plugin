@@ -119,7 +119,7 @@ add_action( 'admin_init', 'whatsapp_chat_check_for_updates' );
 
 // Obtiene la última versión del plugin desde GitHub
 function whatsapp_chat_get_latest_version_from_github() {
-    $url = 'https://github.com/REstolDev/whatsapp-chat-plugin/releases/tag/';
+    $url = 'https://github.com/REstolDev/whatsapp-chat-plugin/tags';
     $response = wp_remote_get( $url );
 
     if ( is_wp_error( $response ) ) {
