@@ -3,7 +3,7 @@
 Plugin Name: WhatsApp Chat
 Plugin URI: https://github.com/REstolDev/whatsapp-chat-plugin
 Description: Adds a WhatsApp Chat button to the bottom right of the screen.
-Version: 1.0.3
+Version: 1.0.4
 Author: Ramon Estol
 Author URI: https://ramonestol.com/
 License: GPLv2 or later
@@ -117,8 +117,7 @@ function whatsapp_chat_settings_page()
 
 // Comprueba actualizaciones al inicio del panel de administración
 add_action('admin_init', 'whatsapp_chat_check_for_updates');
-function whatsapp_chat_check_for_updates()
-{
+function whatsapp_chat_check_for_updates() {
     $current_version = get_option('whatsapp_chat_version');
     $latest_version = whatsapp_chat_get_latest_version_from_github();
 
@@ -135,17 +134,14 @@ function whatsapp_chat_check_for_updates()
 
 // Muestra un aviso de actualización en la página de ajustes del plugin
 add_action('admin_notices', 'whatsapp_chat_settings_update_notice');
-function whatsapp_chat_settings_update_notice()
-{
-    if (get_transient('whatsapp_chat_update_available') && current_user_can('manage_options')) {
+function whatsapp_chat_settings_update_notice() {
+    if (get_transient('whatsapp_chat_update_available')) {
         ?>
         <div class="notice notice-info">
-        <p>¡Una nueva versión del plugin WhatsApp Chat está disponible! Por favor, <a href="https://github.com/REstolDev/whatsapp-chat-plugin/archive/main.zip">descarga el plugin aquí</a> y sigue estos pasos para actualizar:</p>
+            <p>¡Una nueva versión del plugin WhatsApp Chat está disponible! Por favor, <a href="https://github.com/REstolDev/whatsapp-chat-plugin/archive/main.zip">descarga el plugin aquí</a> y sigue estos pasos para actualizar:</p>
             <ol>
                 <li>Descarga el archivo ZIP del plugin desde el enlace anterior.</li>
-                <li>Desactiva y elimina la versión antigua del plugin desde el panel de administración de WordPress.</li>
                 <li>Sube el nuevo archivo ZIP descargado e instálalo como un nuevo plugin.</li>
-                <li>Activa el plugin nuevamente.</li>
             </ol>
         </div>
         <?php
@@ -153,8 +149,7 @@ function whatsapp_chat_settings_update_notice()
 }
 
 // Obtiene la última versión del plugin desde GitHub
-function whatsapp_chat_get_latest_version_from_github()
-{
+function whatsapp_chat_get_latest_version_from_github() {
     $url = 'https://api.github.com/repos/REstolDev/whatsapp-chat-plugin/tags';
 
     // Agregar mensaje de depuración
@@ -182,10 +177,8 @@ function whatsapp_chat_get_latest_version_from_github()
     return false;
 }
 
-
 // Almacena la versión actual del plugin
-function whatsapp_chat_activate_plugin()
-{
+function whatsapp_chat_activate_plugin() {
     $current_version = get_option('whatsapp_chat_version');
     $latest_version = whatsapp_chat_get_latest_version_from_github();
 
@@ -194,3 +187,15 @@ function whatsapp_chat_activate_plugin()
     }
 }
 register_activation_hook(__FILE__, 'whatsapp_chat_activate_plugin');
+
+// Actualiza la versión del plugin después de actualizar
+add_action('upgrader_process_complete', 'whatsapp_chat_after_update', 10, 2);
+function whatsapp_chat_after_update($upgrader_object, $options) {
+    if ($options['action'] == 'update' && $options['type'] == 'plugin' ) {
+        if (isset($options['plugins']) && in_array(plugin_basename(__FILE__), $options['plugins'])) {
+            $latest_version = whatsapp_chat_get_latest_version_from_github();
+            update_option('whatsapp_chat_version', $latest_version);
+            delete_transient('whatsapp_chat_update_available');
+        }
+    }
+}
