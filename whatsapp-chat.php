@@ -131,18 +131,6 @@ function whatsapp_chat_settings_update_notice() {
     }
 }
 
-// Muestra un aviso de actualización en la página de plugins
-add_action( 'in_plugin_update_message-whatsapp-chat/whatsapp-chat.php', 'whatsapp_chat_plugin_update_message', 10, 2 );
-function whatsapp_chat_plugin_update_message( $plugin_data, $response ) {
-    if ( get_transient( 'whatsapp_chat_update_available' ) ) {
-        echo '<div class="update-message">';
-        echo '¡Una nueva versión del plugin WhatsApp Chat está disponible! ';
-        echo '<a href="' . admin_url( 'update.php?action=upgrade-plugin&plugin=whatsapp-chat/whatsapp-chat.php' ) . '">Actualizar ahora</a>';
-        echo '</div>';
-    }
-}
-
-
 // Obtiene la última versión del plugin desde GitHub
 function whatsapp_chat_get_latest_version_from_github() {
     $url = 'https://api.github.com/repos/REstolDev/whatsapp-chat-plugin/tags';
