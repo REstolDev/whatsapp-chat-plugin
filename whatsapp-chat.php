@@ -116,6 +116,8 @@ function whatsapp_chat_check_for_updates() {
 
     if ( version_compare( $latest_version, $current_version, '>' ) ) {
         set_transient( 'whatsapp_chat_update_available', true, DAY_IN_SECONDS ); // Establece el aviso de actualización por 1 día
+    } else {
+        delete_transient( 'whatsapp_chat_update_available' ); // Elimina el aviso si ya está actualizado
     }
 }
 
