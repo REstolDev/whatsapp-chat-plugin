@@ -140,9 +140,13 @@ function whatsapp_chat_settings_update_notice()
     if (get_transient('whatsapp_chat_update_available') && current_user_can('manage_options')) {
         ?>
         <div class="notice notice-info">
-            <p>¡Una nueva versión del plugin WhatsApp Chat está disponible! Por favor, <a
-                    href="https://github.com/REstolDev/whatsapp-chat-plugin">actualiza ahora</a> para disfrutar de las últimas
-                características y mejoras.</p>
+        <p>¡Una nueva versión del plugin WhatsApp Chat está disponible! Por favor, <a href="https://github.com/REstolDev/whatsapp-chat-plugin/archive/main.zip">descarga el plugin aquí</a> y sigue estos pasos para actualizar:</p>
+            <ol>
+                <li>Descarga el archivo ZIP del plugin desde el enlace anterior.</li>
+                <li>Desactiva y elimina la versión antigua del plugin desde el panel de administración de WordPress.</li>
+                <li>Sube el nuevo archivo ZIP descargado e instálalo como un nuevo plugin.</li>
+                <li>Activa el plugin nuevamente.</li>
+            </ol>
         </div>
         <?php
     }
