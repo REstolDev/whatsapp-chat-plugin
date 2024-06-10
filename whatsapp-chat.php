@@ -2,7 +2,7 @@
 /*
 Plugin Name: WhatsApp Chat
 Description: Adds a WhatsApp Chat button to the bottom right of the screen.
-Version: 1.0.1
+Version: 1.0.2
 Author: Ramon Estol
 Author URI: https://ramonestol.com/
 License: GPLv2 or later
