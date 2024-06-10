@@ -145,7 +145,6 @@ function whatsapp_chat_settings_update_notice() {
             <ol>
                 <li>Descarga el archivo ZIP del plugin desde el enlace anterior.</li>
                 <li>Sube el nuevo archivo ZIP descargado e instálalo como un nuevo plugin.</li>
-                <li>Desactiva y elimina la versión antigua del plugin.</li>
             </ol>
         </div>
         <?php
