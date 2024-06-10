@@ -1,0 +1,45 @@
+.wrap.whatsapp-chat-settings {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.whatsapp-chat-settings h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.whatsapp-chat-settings .form-table th {
+    width: 200px;
+    padding: 10px 10px 10px 0;
+    vertical-align: top;
+    text-align: left;
+}
+
+.whatsapp-chat-settings .form-table td {
+    padding: 10px 0;
+}
+
+.whatsapp-chat-settings .regular-text,
+.whatsapp-chat-settings .large-text {
+    width: 100%;
+}
+
+.whatsapp-chat-settings .button-primary {
+    background: #25d366;
+    border-color: #1ab34a;
+    color: #fff;
+    text-transform: uppercase;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.whatsapp-chat-settings .button-primary:hover {
+    background: #1ab34a;
+    border-color: #128c38;
+}
